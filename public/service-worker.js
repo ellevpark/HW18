@@ -1,13 +1,12 @@
 const FILES_TO_CACHE = [
     "/", 
-    "index.html", 
+    "/db.js",
     "icons/icon-192x192.png",
     "icons/icon-512x512.png",
     "index.js",
-    // "manifest.webmanifest",
+    "manifest.json",
     "styles.css"
   ];
-  //maybe not the manifest
 
 const CACHE_NAME = "static-cache-v2";
 const DATA_CACHE_NAME = "data-cache-v1";
@@ -64,4 +63,17 @@ self.addEventListener("fetch", function(evt) {
     );
 
     return;
-}});
+  }
+
+    evt.respondWith(
+      fetch(evt.request).catch(function(){
+        return caches.match(evt.request).then(function(response){
+          if (response){
+            return response; 
+          } else if (evt.request.header.get ("accept").includes("text/html")){
+            return caches.match("/");
+          }
+        })
+      })
+    )
+});
